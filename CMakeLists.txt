@@ -3,6 +3,11 @@ project(StickyStick)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Configurazione debug/release
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+
 # Configura compilatori
 if(DEFINED ENV{MINGW_ROOT})
     set(CMAKE_C_COMPILER "$ENV{MINGW_ROOT}/bin/gcc.exe")
@@ -21,7 +26,7 @@ include_directories(
     ${SFML_INCLUDE_DIR}
 )
 
-file(GLOB_RECURSE SOURCES "src/*.cpp")
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
@@ -31,7 +36,15 @@ target_link_libraries(${PROJECT_NAME}
     sfml-system
 )
 
-# Copia automatica delle DLL
+# Opzioni di build
+if(WIN32)
+    target_link_options(${PROJECT_NAME} PRIVATE -mconsole)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG_MODE)
+    endif()
+endif()
+
+# Copia DLL
 if(WIN32 AND SFML_ROOT)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy

@@ -1,5 +1,4 @@
 #include "Core/Engine.hpp"
-#include <stdexcept>
 
 Engine& Engine::getInstance() {
     static Engine instance;
